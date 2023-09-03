@@ -14,7 +14,7 @@ fmt:
 
 test:
 	go clean -testcache
-	go test ./... -cover
+	go test ./... -cover -v
 
 compile:
 	GOOS=freebsd GOARCH=386 go build -o bin/main-freebsd-386 main.go

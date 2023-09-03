@@ -7,8 +7,8 @@ type Map[K comparable, V any] struct {
 	content map[K]V
 }
 
-func NewMap[K comparable, V any]() Map[K, V] {
-	return Map[K, V]{
+func NewMap[K comparable, V any]() *Map[K, V] {
+	return &Map[K, V]{
 		sync.RWMutex{},
 		map[K]V{},
 	}

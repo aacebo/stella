@@ -3,7 +3,7 @@ package stella
 import "stella/sync"
 
 type Ctx struct {
-	values sync.Map[string, any]
+	values *sync.Map[string, any]
 }
 
 func NewCtx() *Ctx {

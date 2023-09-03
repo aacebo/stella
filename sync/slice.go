@@ -7,8 +7,8 @@ type Slice[V any] struct {
 	content []V
 }
 
-func NewSlice[V any]() Slice[V] {
-	return Slice[V]{
+func NewSlice[V any]() *Slice[V] {
+	return &Slice[V]{
 		sync.RWMutex{},
 		[]V{},
 	}
@@ -33,4 +33,23 @@ func (self *Slice[V]) Len() int {
 	l := len(self.content)
 	self.mu.RUnlock()
 	return l
+}
+
+func (self *Slice[V]) Content() []V {
+	self.mu.RLock()
+	content := self.content
+	self.mu.RUnlock()
+	return content
+}
+
+func (self *Slice[V]) Copy() *Slice[V] {
+	self.mu.RLock()
+	slice := NewSlice[V]()
+
+	for _, item := range self.content {
+		slice.content = append(slice.content, item)
+	}
+
+	self.mu.RUnlock()
+	return slice
 }
