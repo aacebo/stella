@@ -1,4 +1,4 @@
-package stella
+package sync
 
 import "sync"
 

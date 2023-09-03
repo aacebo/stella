@@ -4,22 +4,23 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"stella/sync"
 	"text/template"
 )
 
 type AI struct {
-	Context      Map[string, any]
-	conversation Slice[*Message]
-	prompts      Map[string, *template.Template]
-	functions    Map[string, func(...any) any]
+	Context      sync.Map[string, any]
+	conversation sync.Slice[*Message]
+	prompts      sync.Map[string, *template.Template]
+	functions    sync.Map[string, func(...any) any]
 }
 
 func New() AI {
 	return AI{
-		Context:      NewMap[string, any](),
-		conversation: NewSlice[*Message](),
-		prompts:      NewMap[string, *template.Template](),
-		functions:    NewMap[string, func(...any) any](),
+		Context:      sync.NewMap[string, any](),
+		conversation: sync.NewSlice[*Message](),
+		prompts:      sync.NewMap[string, *template.Template](),
+		functions:    sync.NewMap[string, func(...any) any](),
 	}
 }
 
