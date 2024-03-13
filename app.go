@@ -33,10 +33,6 @@ func (self *App) Prompt(name string, text string) error {
 	return nil
 }
 
-func (self *App) Var(name string, value any) {
-	self.ctx.Set(name, value)
-}
-
 func (self *App) With(middleware ...Handler) *App {
 	app := &App{
 		ctx:        self.ctx,
@@ -51,7 +47,7 @@ func (self *App) With(middleware ...Handler) *App {
 	return app
 }
 
-func (self *App) Func(name string, method func(*Ctx, ...any) any) *App {
+func (self *App) Func(name string, method func(*Ctx, ...any) (any, error)) *App {
 	self.ctx.Set(name, func(args ...any) any {
 		for _, handler := range self.middleware.Content() {
 			err := handler(self.ctx, args...)
@@ -61,7 +57,13 @@ func (self *App) Func(name string, method func(*Ctx, ...any) any) *App {
 			}
 		}
 
-		return method(self.ctx, args...)
+		res, err := method(self.ctx, args...)
+
+		if err != nil {
+			return nil
+		}
+
+		return res
 	})
 
 	return self

@@ -20,9 +20,9 @@ func (self *Ctx) Set(name string, value any) {
 	self.values.Set(name, value)
 }
 
-func (self *Ctx) Get(name string) any {
+func (self *Ctx) Get(name string, defaultValue any) any {
 	if !self.values.Has(name) {
-		return nil
+		return defaultValue
 	}
 
 	return self.values.Get(name)
