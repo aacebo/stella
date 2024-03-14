@@ -1,4 +1,4 @@
-package openai
+package core
 
 type MessageRole string
 
@@ -13,29 +13,29 @@ type Message struct {
 	Content string      `json:"content"`
 }
 
-func NewMessage(role MessageRole, content string) *Message {
-	return &Message{
+func NewMessage(role MessageRole, content string) Message {
+	return Message{
 		Role:    role,
 		Content: content,
 	}
 }
 
-func SystemMessage(content string) *Message {
-	return &Message{
+func SystemMessage(content string) Message {
+	return Message{
 		Role:    SYSTEM,
 		Content: content,
 	}
 }
 
-func AssistantMessage(content string) *Message {
-	return &Message{
+func AssistantMessage(content string) Message {
+	return Message{
 		Role:    ASSISTANT,
 		Content: content,
 	}
 }
 
-func UserMessage(content string) *Message {
-	return &Message{
+func UserMessage(content string) Message {
+	return Message{
 		Role:    USER,
 		Content: content,
 	}

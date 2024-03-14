@@ -2,7 +2,7 @@ clean:
 	rm -rf ./bin
 
 build:
-	go build -o bin/main main.go
+	go build -o ./bin/stella ./
 
 clean_build: clean build
 

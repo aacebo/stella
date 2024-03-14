@@ -1,15 +1,22 @@
 package stella_test
 
 import (
+	"log"
+	"os"
 	"stella"
+	"stella/openai"
 	"testing"
 )
 
 func TestApp(t *testing.T) {
-	app := stella.New()
+	app := stella.New().WithChat(openai.NewClient(
+		os.Getenv("OPENAI_API_KEY"),
+		"gpt-3.5-turbo",
+	)).Logger(log.Default())
+
 	err := app.Prompt(
-		"test",
-		"this is a test {{ call .hello_world }} to see if context changes {{ call .hello_world }} with input {{ .input }}",
+		"default",
+		"you are an expert on turning the lights on or off",
 	)
 
 	if err != nil {
@@ -17,25 +24,19 @@ func TestApp(t *testing.T) {
 		return
 	}
 
-	out, err := app.With(
-		func(ctx *stella.Ctx, args ...any) error {
-			v := ctx.Get("value", 1).(int)
-			ctx.Set("value", v+1)
-			return nil
-		},
-	).Func("hello_world", func(ctx *stella.Ctx, args ...any) (any, error) {
-		v := ctx.Get("value", 1).(int)
-		ctx.Set("value", v+1)
-		return v, nil
-	}).Render("test", "testing123")
+	res, err := app.Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
+		ctx.Set("state", true)
+		return nil, nil
+	}).Func("lights_off", "turn the lights off", func(ctx *stella.Ctx, args ...any) (any, error) {
+		ctx.Set("state", false)
+		return nil, nil
+	}).Func("get_light_status", "get the current light status", func(ctx *stella.Ctx, args ...any) (any, error) {
+		return ctx.Get("state", false).(bool), nil
+	}).Say("default", "are the lights on?")
 
 	if err != nil {
 		t.Error(err)
-		return
 	}
 
-	if out != "this is a test 2 to see if context changes 4 with input testing123" {
-		t.Errorf("expected 'this is a test 2 to see if context changes 4 with input testing123', received '%s'", out)
-		return
-	}
+	t.Log(res)
 }

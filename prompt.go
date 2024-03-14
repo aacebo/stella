@@ -9,22 +9,20 @@ type Prompt struct {
 	template *template.Template
 }
 
-func NewPrompt(name string, text string) (*Prompt, error) {
-	tpl, err := template.New(name).Parse(text)
+func NewPrompt(name string, text string, functions template.FuncMap) (Prompt, error) {
+	tpl, err := template.New(name).Funcs(functions).Parse(text)
 
 	if err != nil {
-		return nil, err
+		return Prompt{}, err
 	}
 
-	return &Prompt{
+	return Prompt{
 		template: tpl,
 	}, nil
 }
 
-func (self Prompt) Render(ctx *Ctx, input string) (string, error) {
+func (self Prompt) Render(in map[string]any) (string, error) {
 	var out bytes.Buffer
-	in := ctx.Values()
-	in["input"] = input
 	err := self.template.Execute(&out, in)
 
 	if err != nil {
