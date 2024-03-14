@@ -1,6 +1,8 @@
 package stella
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type FunctionHandler func(*Ctx, ...any) (any, error)
 

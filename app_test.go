@@ -16,7 +16,7 @@ func TestApp(t *testing.T) {
 
 	err := app.Prompt(
 		"default",
-		"you are an expert on turning the lights on or off",
+		"you are an expert on turning the lights on or off and telling me the status.",
 	)
 
 	if err != nil {
@@ -24,15 +24,17 @@ func TestApp(t *testing.T) {
 		return
 	}
 
-	res, err := app.Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
+	app = app.Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
 		ctx.Set("state", true)
-		return nil, nil
+		return "", nil
 	}).Func("lights_off", "turn the lights off", func(ctx *stella.Ctx, args ...any) (any, error) {
 		ctx.Set("state", false)
-		return nil, nil
+		return "", nil
 	}).Func("get_light_status", "get the current light status", func(ctx *stella.Ctx, args ...any) (any, error) {
 		return ctx.Get("state", false).(bool), nil
-	}).Say("default", "are the lights on?")
+	})
+
+	res, err := app.Say("default", "are the lights on? If not, turn them on and tell me the status.")
 
 	if err != nil {
 		t.Error(err)

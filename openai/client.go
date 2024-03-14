@@ -27,8 +27,9 @@ func NewClient(apiKey string, model string) Client {
 
 func (self Client) ChatCompletion(messages []core.Message) (core.Message, error) {
 	b, err := json.Marshal(map[string]any{
-		"model":    self.model,
-		"messages": messages,
+		"model":       self.model,
+		"temperature": 0,
+		"messages":    messages,
 	})
 
 	if err != nil {

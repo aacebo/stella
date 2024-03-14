@@ -133,7 +133,6 @@ func (self *App) Say(name string, input string) (string, error) {
 			return "", err
 		}
 
-		fmt.Println(system)
 		self.messages = append(self.messages, core.SystemMessage(system))
 	}
 
@@ -144,7 +143,6 @@ func (self *App) Say(name string, input string) (string, error) {
 		return "", err
 	}
 
-	self.logger.Println(res.Content)
 	state := map[string]any{}
 
 	for name, def := range self.functions {
