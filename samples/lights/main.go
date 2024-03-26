@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	status := false
 	app := stella.New().
 		Logger(log.Default()).
 		WithChat(openai.NewClient(
@@ -17,15 +18,15 @@ func main() {
 			"gpt-3.5-turbo",
 		)).
 		Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
-			ctx.Set("state", true)
-			return "", nil
+			status = true
+			return true, nil
 		}).
 		Func("lights_off", "turn the lights off", func(ctx *stella.Ctx, args ...any) (any, error) {
-			ctx.Set("state", false)
-			return "", nil
+			status = false
+			return false, nil
 		}).
 		Func("get_light_status", "get the current light status", func(ctx *stella.Ctx, args ...any) (any, error) {
-			return ctx.Get("state", false).(bool), nil
+			return status, nil
 		})
 
 	err := app.Prompt(
@@ -47,6 +48,8 @@ func main() {
 			res, err = app.Say("default", err.Error())
 		}
 
-		fmt.Println(res)
+		if res != "" {
+			fmt.Println(res)
+		}
 	}
 }

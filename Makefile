@@ -3,7 +3,6 @@ clean:
 
 build:
 	go build -o ./bin/stella ./
-	go build -o ./bin/cmd ./cmd
 
 clean_build: clean build
 

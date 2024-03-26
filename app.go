@@ -115,12 +115,22 @@ func (self *App) Render(name string, input string) (string, error) {
 		return "", err
 	}
 
-	parts := []string{rendered}
+	parts := []string{
+		rendered,
+		"Do not respond using markdown.",
+		"Respond only with template string syntax defined as:",
+		"- action syntax examples: https://pkg.go.dev/text/template#hdr-Actions",
+		"- variable syntax examples: https://pkg.go.dev/text/template#hdr-Examples",
+		"- function syntax examples: https://pkg.go.dev/text/template#hdr-Functions",
+	}
 
-	parts = append(parts, `
-Respond respond only with template string syntax.
-- variable syntax examples: https://pkg.go.dev/text/template#hdr-Examples
-- function syntax examples: https://pkg.go.dev/text/template#hdr-Functions`)
+	if len(self.ctx.Values()) > 0 {
+		parts = append(parts, "Variables:")
+
+		for name := range self.ctx.Values() {
+			parts = append(parts, name)
+		}
+	}
 
 	if len(self.functions) > 0 {
 		parts = append(parts, "Functions:")
@@ -157,6 +167,7 @@ func (self *App) Say(name string, input string) (string, error) {
 		state[name] = def.Handler
 	}
 
+	self.logger.Println(res.Content)
 	responsePrompt, err := NewPrompt("default", res.Content, state)
 
 	if err != nil {
@@ -171,7 +182,7 @@ func (self *App) Say(name string, input string) (string, error) {
 
 	self.messages = append(self.messages, core.NewMessage(
 		res.Role,
-		renderedResponse,
+		res.Content,
 	))
 
 	return renderedResponse, nil
