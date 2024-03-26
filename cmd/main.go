@@ -43,7 +43,7 @@ func main() {
 		text := scanner.Text()
 		res, err := app.Say("default", text)
 
-		if err != nil {
+		for err != nil {
 			res, err = app.Say("default", err.Error())
 		}
 
