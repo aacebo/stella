@@ -167,7 +167,6 @@ func (self *App) Say(name string, input string) (string, error) {
 		state[name] = def.Handler
 	}
 
-	self.logger.Println(res.Content)
 	responsePrompt, err := NewPrompt("default", res.Content, state)
 
 	if err != nil {
