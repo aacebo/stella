@@ -7,10 +7,10 @@ import (
 type FunctionHandler func(*Ctx, ...any) (any, error)
 
 type Function struct {
-	Name        string                    `json:"name"`
-	Description string                    `json:"description"`
-	Properties  map[string]any            `json:"properties"`
-	Handler     func(...any) (any, error) `json:"-"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	Properties  map[string]any   `json:"properties"`
+	Handler     func(...any) any `json:"-"`
 }
 
 func (self Function) String() string {

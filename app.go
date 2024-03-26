@@ -71,16 +71,24 @@ func (self *App) Func(name string, description string, callback FunctionHandler)
 	self.functions[name] = Function{
 		Name:        name,
 		Description: description,
-		Handler: func(args ...any) (any, error) {
+		Handler: func(args ...any) any {
 			for _, handler := range self.middleware {
 				err := handler(self.ctx, args...)
 
 				if err != nil {
-					return nil, nil
+					self.logger.Println(err)
+					return ""
 				}
 			}
 
-			return callback(self.ctx, args...)
+			v, err := callback(self.ctx, args...)
+
+			if err != nil {
+				self.logger.Println(err)
+				return ""
+			}
+
+			return v
 		},
 	}
 
