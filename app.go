@@ -37,7 +37,7 @@ func (self *App) WithChat(client ChatClient) *App {
 	return self
 }
 
-func (self *App) Logger(logger *log.Logger) *App {
+func (self *App) WithLogger(logger *log.Logger) *App {
 	self.logger = logger
 	return self
 }
@@ -67,10 +67,11 @@ func (self *App) With(middleware ...Handler) *App {
 	return self
 }
 
-func (self *App) Func(name string, description string, callback FunctionHandler) *App {
+func (self *App) Func(name string, description string, properties map[string]any, callback FunctionHandler) *App {
 	self.functions[name] = Function{
 		Name:        name,
 		Description: description,
+		Properties:  properties,
 		Handler: func(args ...any) any {
 			for _, handler := range self.middleware {
 				err := handler(self.ctx, args...)
@@ -183,6 +184,10 @@ func (self *App) Say(name string, input string) (string, error) {
 		res.Role,
 		res.Content,
 	))
+
+	if self.logger != nil {
+		self.logger.Println(self.messages[len(self.messages)-1])
+	}
 
 	return renderedResponse, nil
 }

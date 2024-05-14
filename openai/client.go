@@ -12,23 +12,30 @@ import (
 var BASE_URL = "https://api.openai.com"
 
 type Client struct {
-	http   http.Client
-	apiKey string
-	model  string
+	http        http.Client
+	apiKey      string
+	model       string
+	temperature float32
 }
 
 func NewClient(apiKey string, model string) Client {
 	return Client{
-		http:   http.Client{},
-		apiKey: apiKey,
-		model:  model,
+		http:        http.Client{},
+		apiKey:      apiKey,
+		model:       model,
+		temperature: 0.8,
 	}
+}
+
+func (self Client) WithTemperature(temperature float32) Client {
+	self.temperature = temperature
+	return self
 }
 
 func (self Client) ChatCompletion(messages []core.Message) (core.Message, error) {
 	b, err := json.Marshal(map[string]any{
 		"model":       self.model,
-		"temperature": 0.8,
+		"temperature": self.temperature,
 		"messages":    messages,
 	})
 

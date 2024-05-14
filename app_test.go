@@ -12,7 +12,7 @@ func TestApp(t *testing.T) {
 	app := stella.New().WithChat(openai.NewClient(
 		os.Getenv("OPENAI_API_KEY"),
 		"gpt-3.5-turbo",
-	)).Logger(log.Default())
+	)).WithLogger(log.Default())
 
 	err := app.Prompt(
 		"default",
@@ -24,13 +24,13 @@ func TestApp(t *testing.T) {
 		return
 	}
 
-	app = app.Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
+	app = app.Func("lights_on", "turn the lights on", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
 		ctx.Set("state", true)
 		return "", nil
-	}).Func("lights_off", "turn the lights off", func(ctx *stella.Ctx, args ...any) (any, error) {
+	}).Func("lights_off", "turn the lights off", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
 		ctx.Set("state", false)
 		return "", nil
-	}).Func("get_light_status", "get the current light status", func(ctx *stella.Ctx, args ...any) (any, error) {
+	}).Func("get_light_status", "get the current light status", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
 		return ctx.Get("state", false).(bool), nil
 	})
 

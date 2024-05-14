@@ -1,5 +1,7 @@
 package core
 
+import "encoding/json"
+
 type MessageRole string
 
 const (
@@ -39,4 +41,9 @@ func UserMessage(content string) Message {
 		Role:    USER,
 		Content: content,
 	}
+}
+
+func (self Message) String() string {
+	b, _ := json.Marshal(self)
+	return string(b)
 }

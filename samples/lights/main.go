@@ -10,23 +10,34 @@ import (
 )
 
 func main() {
-	status := false
 	app := stella.New().
-		Logger(log.Default()).
+		WithLogger(log.Default()).
 		WithChat(openai.NewClient(
 			os.Getenv("OPENAI_API_KEY"),
-			"gpt-3.5-turbo",
-		)).
-		Func("lights_on", "turn the lights on", func(ctx *stella.Ctx, args ...any) (any, error) {
-			status = true
+			"gpt-4",
+		).WithTemperature(0)).
+		Func("lights_on", "turn the lights on", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
+			status := ctx.Get("status", false)
+
+			if status == false {
+				status = true
+				ctx.Set("status", true)
+			}
+
 			return true, nil
 		}).
-		Func("lights_off", "turn the lights off", func(ctx *stella.Ctx, args ...any) (any, error) {
-			status = false
-			return false, nil
+		Func("lights_off", "turn the lights off", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
+			status := ctx.Get("status", false)
+
+			if status == true {
+				status = false
+				ctx.Set("status", false)
+			}
+
+			return true, nil
 		}).
-		Func("get_light_status", "get the current light status", func(ctx *stella.Ctx, args ...any) (any, error) {
-			return status, nil
+		Func("get_light_status", "get the current light status", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
+			return ctx.Get("status", false), nil
 		})
 
 	err := app.Prompt(
