@@ -1,12 +1,7 @@
 package openai
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
-	"stella/core"
 )
 
 var BASE_URL = "https://api.openai.com"
@@ -16,6 +11,7 @@ type Client struct {
 	apiKey      string
 	model       string
 	temperature float32
+	stream      bool
 }
 
 func NewClient(apiKey string, model string) Client {
@@ -24,6 +20,7 @@ func NewClient(apiKey string, model string) Client {
 		apiKey:      apiKey,
 		model:       model,
 		temperature: 0.8,
+		stream:      false,
 	}
 }
 
@@ -32,45 +29,7 @@ func (self Client) WithTemperature(temperature float32) Client {
 	return self
 }
 
-func (self Client) ChatCompletion(messages []core.Message) (core.Message, error) {
-	b, err := json.Marshal(map[string]any{
-		"model":       self.model,
-		"temperature": self.temperature,
-		"messages":    messages,
-	})
-
-	if err != nil {
-		return core.Message{}, err
-	}
-
-	req, err := http.NewRequest(
-		"POST",
-		fmt.Sprintf("%s/v1/chat/completions", BASE_URL),
-		bytes.NewBuffer(b),
-	)
-
-	if err != nil {
-		return core.Message{}, err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", self.apiKey))
-	res, err := self.http.Do(req)
-
-	if err != nil {
-		return core.Message{}, err
-	}
-
-	body := Completion{}
-	err = json.NewDecoder(res.Body).Decode(&body)
-
-	if err != nil {
-		return core.Message{}, err
-	}
-
-	if len(body.Choices) == 0 {
-		return core.Message{}, errors.New("[openai.chat] => no message returned")
-	}
-
-	return body.Choices[0].Message, nil
+func (self Client) WithStream(stream bool) Client {
+	self.stream = stream
+	return self
 }

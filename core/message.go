@@ -1,4 +1,4 @@
-package core
+package stella
 
 import "encoding/json"
 
@@ -10,40 +10,53 @@ const (
 	USER      MessageRole = "user"
 )
 
-type Message struct {
+type Message interface {
+	GetRole() MessageRole
+	GetContent() string
+}
+
+type ChatMessage struct {
 	Role    MessageRole `json:"role"`
 	Content string      `json:"content"`
 }
 
-func NewMessage(role MessageRole, content string) Message {
-	return Message{
+func NewChatMessage(role MessageRole, content string) ChatMessage {
+	return ChatMessage{
 		Role:    role,
 		Content: content,
 	}
 }
 
-func SystemMessage(content string) Message {
-	return Message{
+func SystemChatMessage(content string) ChatMessage {
+	return ChatMessage{
 		Role:    SYSTEM,
 		Content: content,
 	}
 }
 
-func AssistantMessage(content string) Message {
-	return Message{
+func AssistantChatMessage(content string) ChatMessage {
+	return ChatMessage{
 		Role:    ASSISTANT,
 		Content: content,
 	}
 }
 
-func UserMessage(content string) Message {
-	return Message{
+func UserChatMessage(content string) ChatMessage {
+	return ChatMessage{
 		Role:    USER,
 		Content: content,
 	}
 }
 
-func (self Message) String() string {
+func (self ChatMessage) GetRole() MessageRole {
+	return self.Role
+}
+
+func (self ChatMessage) GetContent() string {
+	return self.Content
+}
+
+func (self ChatMessage) String() string {
 	b, _ := json.Marshal(self)
 	return string(b)
 }

@@ -1,6 +1,6 @@
 package stella
 
-import "stella/sync"
+import "github.com/aacebo/stella/sync"
 
 type Ctx struct {
 	values *sync.Map[string, any]

@@ -3,9 +3,10 @@ package stella_test
 import (
 	"log"
 	"os"
-	"stella"
-	"stella/openai"
 	"testing"
+
+	stella "github.com/aacebo/stella/core"
+	"github.com/aacebo/stella/openai"
 )
 
 func TestApp(t *testing.T) {

@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"stella"
-	"stella/openai"
+
+	stella "github.com/aacebo/stella/core"
+	"github.com/aacebo/stella/openai"
 )
 
 func main() {
+	client := openai.NewClient(
+		os.Getenv("OPENAI_API_KEY"),
+		"gpt-3.5-turbo",
+	).WithTemperature(0).WithStream(true)
+
 	app := stella.New().
 		WithLogger(log.Default()).
-		WithChat(openai.NewClient(
-			os.Getenv("OPENAI_API_KEY"),
-			"gpt-4",
-		).WithTemperature(0)).
+		WithChat(client).
 		Func("lights_on", "turn the lights on", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
 			status := ctx.Get("status", false)
 
@@ -50,6 +53,7 @@ func main() {
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("$: ")
 
 	for scanner.Scan() {
 		text := scanner.Text()
@@ -62,5 +66,7 @@ func main() {
 		if res != "" {
 			fmt.Println(res)
 		}
+
+		fmt.Print("$: ")
 	}
 }

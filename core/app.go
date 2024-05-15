@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"stella/core"
 	"strings"
 )
 
@@ -16,7 +15,7 @@ type App struct {
 	prompts    map[string]Prompt
 	functions  map[string]Function
 	middleware []Handler
-	messages   []core.Message
+	messages   []Message
 	logger     *log.Logger
 }
 
@@ -27,7 +26,7 @@ func New() *App {
 		prompts:    map[string]Prompt{},
 		functions:  map[string]Function{},
 		middleware: []Handler{},
-		messages:   []core.Message{},
+		messages:   []Message{},
 		logger:     nil,
 	}
 }
@@ -152,11 +151,11 @@ func (self *App) Say(name string, input string) (string, error) {
 			return "", err
 		}
 
-		self.messages = append(self.messages, core.SystemMessage(system))
+		self.messages = append(self.messages, SystemChatMessage(system))
 	}
 
-	self.messages = append(self.messages, core.UserMessage(input))
-	res, err := self.chat.ChatCompletion(self.messages)
+	self.messages = append(self.messages, UserChatMessage(input))
+	res, err := self.chat.ChatCompletion(self.messages, nil)
 
 	if err != nil {
 		return "", err
@@ -168,7 +167,7 @@ func (self *App) Say(name string, input string) (string, error) {
 		state[name] = def.Handler
 	}
 
-	responsePrompt, err := NewPrompt("default", res.Content, state)
+	responsePrompt, err := NewPrompt("default", res.GetContent(), state)
 
 	if err != nil {
 		return "", err
@@ -180,9 +179,9 @@ func (self *App) Say(name string, input string) (string, error) {
 		return "", err
 	}
 
-	self.messages = append(self.messages, core.NewMessage(
-		res.Role,
-		res.Content,
+	self.messages = append(self.messages, NewChatMessage(
+		res.GetRole(),
+		res.GetContent(),
 	))
 
 	if self.logger != nil {
