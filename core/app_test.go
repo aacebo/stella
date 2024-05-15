@@ -10,7 +10,7 @@ import (
 )
 
 func TestApp(t *testing.T) {
-	app := stella.New().WithChat(openai.NewClient(
+	app := stella.New().WithChat(openai.NewChatClient(
 		os.Getenv("OPENAI_API_KEY"),
 		"gpt-3.5-turbo",
 	)).WithLogger(log.Default())

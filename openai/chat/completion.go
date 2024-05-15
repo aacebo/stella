@@ -1,4 +1,4 @@
-package openai
+package chat
 
 import (
 	"bufio"
@@ -20,8 +20,8 @@ type Completion struct {
 }
 
 type CompletionChoice struct {
-	FinishReason string      `json:"finish_reason"`
-	Message      ChatMessage `json:"message"`
+	FinishReason string  `json:"finish_reason"`
+	Message      Message `json:"message"`
 }
 
 type CompletionChunk struct {
@@ -32,8 +32,8 @@ type CompletionChunk struct {
 }
 
 type CompletionChoiceChunk struct {
-	Index int         `json:"index"`
-	Delta ChatMessage `json:"delta"`
+	Index int     `json:"index"`
+	Delta Message `json:"delta"`
 }
 
 func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.Message)) (stella.Message, error) {
@@ -45,7 +45,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 	})
 
 	if err != nil {
-		return ChatMessage{}, err
+		return Message{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -55,7 +55,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 	)
 
 	if err != nil {
-		return ChatMessage{}, err
+		return Message{}, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -70,7 +70,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 	res, err := self.http.Do(req)
 
 	if err != nil {
-		return ChatMessage{}, err
+		return Message{}, err
 	}
 
 	completion := Completion{}
@@ -85,7 +85,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 					break
 				}
 
-				return ChatMessage{}, err
+				return Message{}, err
 			}
 
 			data := scanner.Bytes()
@@ -102,7 +102,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 			err = json.Unmarshal(data, &chunk)
 
 			if err != nil {
-				return ChatMessage{}, err
+				return Message{}, err
 			}
 
 			completion.ID = chunk.ID
@@ -116,7 +116,7 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 
 				if choice.Index > len(completion.Choices)-1 {
 					completion.Choices = append(completion.Choices, CompletionChoice{
-						Message: ChatMessage{
+						Message: Message{
 							Role:    stella.MessageRole(choice.Delta.Role),
 							Content: choice.Delta.Content,
 						},
@@ -131,11 +131,11 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 	}
 
 	if err != nil {
-		return ChatMessage{}, err
+		return Message{}, err
 	}
 
 	if len(completion.Choices) == 0 {
-		return ChatMessage{}, errors.New("[openai.chat] => no message returned")
+		return Message{}, errors.New("[openai.chat] => no message returned")
 	}
 
 	return completion.Choices[0].Message, nil

@@ -16,9 +16,7 @@ func NewPrompt(name string, text string, functions template.FuncMap) (Prompt, er
 		return Prompt{}, err
 	}
 
-	return Prompt{
-		template: tpl,
-	}, nil
+	return Prompt{tpl}, nil
 }
 
 func (self Prompt) Render(in map[string]any) (string, error) {
