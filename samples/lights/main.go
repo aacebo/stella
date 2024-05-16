@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	stella "github.com/aacebo/stella/core"
 	"github.com/aacebo/stella/openai"
@@ -54,7 +55,12 @@ func main() {
 	fmt.Print("$: ")
 
 	for scanner.Scan() {
-		text := scanner.Text()
+		text := strings.TrimSpace(scanner.Text())
+
+		if text == "exit" {
+			return
+		}
+
 		_, err := app.Say("default", text, func(text string) {
 			fmt.Print(text)
 		})
