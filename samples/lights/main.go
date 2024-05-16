@@ -13,7 +13,7 @@ import (
 func main() {
 	client := openai.NewChatClient(
 		os.Getenv("OPENAI_API_KEY"),
-		"gpt-3.5-turbo",
+		"gpt-4-turbo",
 	).WithTemperature(0).WithStream(true)
 
 	app := stella.New().
