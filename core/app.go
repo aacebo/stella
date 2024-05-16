@@ -183,13 +183,13 @@ func (self *App) Say(name string, input string, stream func(string)) (string, er
 		return "", err
 	}
 
-	responsePrompt, err := NewPrompt("default", res.GetContent(), state)
+	prompt, err := NewPrompt("default", res.GetContent(), state)
 
 	if err != nil {
 		return "", err
 	}
 
-	renderedResponse, err := responsePrompt.Render(state)
+	rendered, err := prompt.Render(state)
 
 	if err != nil {
 		return "", err
@@ -204,5 +204,5 @@ func (self *App) Say(name string, input string, stream func(string)) (string, er
 		self.logger.Println(self.messages[len(self.messages)-1])
 	}
 
-	return renderedResponse, nil
+	return rendered, nil
 }
