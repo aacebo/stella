@@ -7,14 +7,20 @@ import (
 	"strings"
 
 	stella "github.com/aacebo/stella/core"
-	"github.com/aacebo/stella/openai"
+	"github.com/aacebo/stella/google"
 )
 
+var STREAM = true
+
 func main() {
-	client := openai.NewChatClient(
-		os.Getenv("OPENAI_API_KEY"),
-		"gpt-4-turbo",
-	).WithTemperature(0).WithStream(true)
+	// client := openai.NewChatClient(
+	// 	os.Getenv("OPENAI_API_KEY"),
+	// 	"gpt-4-turbo",
+	// ).WithTemperature(0).WithStream(true)
+	client := google.NewChatClient(
+		os.Getenv("GEMINI_API_KEY"),
+		"gemini-1.5-flash-latest",
+	).WithTemperature(0).WithStream(STREAM)
 
 	app := stella.New().
 		WithChat(client).
@@ -61,14 +67,19 @@ func main() {
 			return
 		}
 
-		_, err := app.Say("default", text, func(text string) {
+		res, err := app.Say("default", text, func(text string) {
 			fmt.Print(text)
 		})
 
 		for err != nil {
-			_, err = app.Say("default", err.Error(), func(text string) {
+			fmt.Println(err.Error())
+			res, err = app.Say("default", err.Error(), func(text string) {
 				fmt.Print(text)
 			})
+		}
+
+		if !STREAM {
+			fmt.Print(res)
 		}
 
 		fmt.Print("\n$: ")
