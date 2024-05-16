@@ -143,7 +143,7 @@ func (self *App) Render(name string, input string) (string, error) {
 	return strings.Join(parts, "\n\n"), nil
 }
 
-func (self *App) Say(name string, input string) (string, error) {
+func (self *App) Say(name string, input string, stream func(string)) (string, error) {
 	if len(self.messages) == 0 {
 		system, err := self.Render(name, input)
 
@@ -154,17 +154,33 @@ func (self *App) Say(name string, input string) (string, error) {
 		self.messages = append(self.messages, SystemChatMessage(system))
 	}
 
-	self.messages = append(self.messages, UserChatMessage(input))
-	res, err := self.chat.ChatCompletion(self.messages, nil)
-
-	if err != nil {
-		return "", err
-	}
-
 	state := map[string]any{}
 
 	for name, def := range self.functions {
 		state[name] = def.Handler
+	}
+
+	text := ""
+	self.messages = append(self.messages, UserChatMessage(input))
+	res, err := self.chat.ChatCompletion(self.messages, func(message Message) {
+		text += message.GetContent()
+		content := text
+		prompt, err := NewPrompt("default", content, state)
+
+		if err != nil {
+			return
+		}
+
+		text = ""
+		content, _ = prompt.Render(state)
+
+		if stream != nil {
+			stream(content)
+		}
+	})
+
+	if err != nil {
+		return "", err
 	}
 
 	responsePrompt, err := NewPrompt("default", res.GetContent(), state)

@@ -35,7 +35,7 @@ func TestApp(t *testing.T) {
 		return ctx.Get("state", false).(bool), nil
 	})
 
-	res, err := app.Say("default", "are the lights on? If not, turn them on and tell me the status.")
+	res, err := app.Say("default", "are the lights on? If not, turn them on and tell me the status.", nil)
 
 	if err != nil {
 		t.Error(err)

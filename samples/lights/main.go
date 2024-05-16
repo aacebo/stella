@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 
 	stella "github.com/aacebo/stella/core"
@@ -17,7 +16,6 @@ func main() {
 	).WithTemperature(0).WithStream(true)
 
 	app := stella.New().
-		WithLogger(log.Default()).
 		WithChat(client).
 		Func("lights_on", "turn the lights on", nil, func(ctx *stella.Ctx, args ...any) (any, error) {
 			status := ctx.Get("status", false)
@@ -57,16 +55,16 @@ func main() {
 
 	for scanner.Scan() {
 		text := scanner.Text()
-		res, err := app.Say("default", text)
+		_, err := app.Say("default", text, func(text string) {
+			fmt.Print(text)
+		})
 
 		for err != nil {
-			res, err = app.Say("default", err.Error())
+			_, err = app.Say("default", err.Error(), func(text string) {
+				fmt.Print(text)
+			})
 		}
 
-		if res != "" {
-			fmt.Println(res)
-		}
-
-		fmt.Print("$: ")
+		fmt.Print("\n$: ")
 	}
 }
