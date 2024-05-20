@@ -10,7 +10,7 @@ import (
 	"github.com/aacebo/stella/openai"
 )
 
-var STREAM = false
+var STREAM = true
 
 func main() {
 	client := openai.NewChatClient(

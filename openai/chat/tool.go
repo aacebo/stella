@@ -19,9 +19,13 @@ type ToolCall struct {
 	Function FunctionToolCall `json:"function"`
 }
 
+func (self ToolCall) Valid() bool {
+	return self.ID != "" && self.Type == "function" && self.Function.Valid()
+}
+
 type FunctionToolCall struct {
 	Name      string `json:"name"`
-	Arguments string `json:"arguments,omitempty"`
+	Arguments string `json:"arguments"`
 }
 
 func (self FunctionToolCall) GetName() string {
@@ -30,10 +34,19 @@ func (self FunctionToolCall) GetName() string {
 
 func (self FunctionToolCall) GetArguments() (any, error) {
 	var args any
+	str := self.Arguments
 
-	if err := json.Unmarshal([]byte(self.Arguments), &args); err != nil {
+	if str == "" {
+		str = "{}"
+	}
+
+	if err := json.Unmarshal([]byte(str), &args); err != nil {
 		return nil, err
 	}
 
 	return args, nil
+}
+
+func (self FunctionToolCall) Valid() bool {
+	return self.Name != ""
 }

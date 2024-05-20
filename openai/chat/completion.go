@@ -22,8 +22,8 @@ type Completion struct {
 }
 
 type CompletionChoice struct {
-	FinishReason string  `json:"finish_reason"`
 	Message      Message `json:"message"`
+	FinishReason string  `json:"finish_reason"`
 }
 
 type CompletionChunk struct {
@@ -34,8 +34,9 @@ type CompletionChunk struct {
 }
 
 type CompletionChoiceChunk struct {
-	Index int     `json:"index"`
-	Delta Message `json:"delta"`
+	Index        int     `json:"index"`
+	Delta        Message `json:"delta"`
+	FinishReason string  `json:"finish_reason"`
 }
 
 func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams) (stella.Message, error) {
@@ -138,7 +139,7 @@ func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams
 			}
 
 			for _, chunk := range chunks {
-				if len(chunk.Choices) == 0 || chunk.Choices[0].Delta.Content == "" {
+				if len(chunk.Choices) == 0 {
 					continue
 				}
 
@@ -147,8 +148,18 @@ func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams
 				completion.Model = chunk.Model
 
 				for _, choice := range chunk.Choices {
-					if params.OnStream != nil {
+					if params.OnStream != nil && len(choice.Delta.ToolCalls) == 0 {
 						params.OnStream(choice.Delta)
+					}
+
+					calls := []ToolCall{}
+
+					if choice.Delta.ToolCalls != nil {
+						for _, call := range choice.Delta.ToolCalls {
+							if call.Valid() {
+								calls = append(calls, call)
+							}
+						}
 					}
 
 					if choice.Index > len(completion.Choices)-1 {
@@ -160,12 +171,17 @@ func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams
 
 						completion.Choices = append(completion.Choices, CompletionChoice{
 							Message: Message{
-								Role:    role,
-								Content: choice.Delta.Content,
+								Role:      role,
+								Content:   choice.Delta.Content,
+								ToolCalls: calls,
 							},
 						})
 					} else {
 						completion.Choices[choice.Index].Message.Content += choice.Delta.Content
+
+						if len(calls) > 0 {
+							completion.Choices[choice.Index].Message.ToolCalls = calls
+						}
 					}
 				}
 			}
