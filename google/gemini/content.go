@@ -7,12 +7,8 @@ type Content struct {
 	Parts []Part `json:"parts"`
 }
 
-func (self Content) GetRole() stella.MessageRole {
-	if self.Role == "user" {
-		return stella.USER
-	}
-
-	return stella.ASSISTANT
+func (self Content) GetRole() string {
+	return self.Role
 }
 
 func (self Content) GetContent() string {
@@ -23,6 +19,10 @@ func (self Content) GetContent() string {
 	}
 
 	return content
+}
+
+func (self Content) GetFunctionCalls() []stella.FunctionCall {
+	return nil
 }
 
 type Part struct {

@@ -2,25 +2,18 @@ package stella
 
 import "encoding/json"
 
-type MessageRole string
-
-const (
-	SYSTEM    MessageRole = "system"
-	ASSISTANT MessageRole = "assistant"
-	USER      MessageRole = "user"
-)
-
 type Message interface {
-	GetRole() MessageRole
+	GetRole() string
 	GetContent() string
+	GetFunctionCalls() []FunctionCall
 }
 
 type ChatMessage struct {
-	Role    MessageRole `json:"role"`
-	Content string      `json:"content"`
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
-func NewChatMessage(role MessageRole, content string) ChatMessage {
+func NewChatMessage(role string, content string) ChatMessage {
 	return ChatMessage{
 		Role:    role,
 		Content: content,
@@ -29,31 +22,35 @@ func NewChatMessage(role MessageRole, content string) ChatMessage {
 
 func SystemChatMessage(content string) ChatMessage {
 	return ChatMessage{
-		Role:    SYSTEM,
+		Role:    "system",
 		Content: content,
 	}
 }
 
 func AssistantChatMessage(content string) ChatMessage {
 	return ChatMessage{
-		Role:    ASSISTANT,
+		Role:    "assistant",
 		Content: content,
 	}
 }
 
 func UserChatMessage(content string) ChatMessage {
 	return ChatMessage{
-		Role:    USER,
+		Role:    "user",
 		Content: content,
 	}
 }
 
-func (self ChatMessage) GetRole() MessageRole {
+func (self ChatMessage) GetRole() string {
 	return self.Role
 }
 
 func (self ChatMessage) GetContent() string {
 	return self.Content
+}
+
+func (self ChatMessage) GetFunctionCalls() []FunctionCall {
+	return nil
 }
 
 func (self ChatMessage) String() string {

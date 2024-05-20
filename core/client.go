@@ -1,5 +1,12 @@
 package stella
 
+type CreateChatCompletionParams struct {
+	Messages  []Message           `json:"messages"`
+	Functions map[string]Function `json:"functions"`
+	OnStream  func(Message)       `json:"-"`
+}
+
 type ChatClient interface {
-	ChatCompletion(messages []Message, stream func(Message)) (Message, error)
+	SupportsNativeFunctions() bool
+	CreateChatCompletion(params CreateChatCompletionParams) (Message, error)
 }

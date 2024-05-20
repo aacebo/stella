@@ -38,12 +38,29 @@ type CompletionChoiceChunk struct {
 	Delta Message `json:"delta"`
 }
 
-func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.Message)) (stella.Message, error) {
+func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams) (stella.Message, error) {
+	tools := []Tool{}
+
+	if params.Functions != nil {
+		for _, value := range params.Functions {
+			tools = append(tools, Tool{
+				Type: "function",
+				Function: FunctionTool{
+					Name:        value.Name,
+					Description: value.Description,
+					Parameters:  value.Properties,
+				},
+			})
+		}
+	}
+
 	b, err := json.Marshal(map[string]any{
+		"tool_choice": "auto",
 		"model":       self.model,
 		"temperature": self.temperature,
 		"stream":      self.stream,
-		"messages":    messages,
+		"messages":    params.Messages,
+		"tools":       tools,
 	})
 
 	if err != nil {
@@ -130,12 +147,12 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 				completion.Model = chunk.Model
 
 				for _, choice := range chunk.Choices {
-					if stream != nil {
-						stream(choice.Delta)
+					if params.OnStream != nil {
+						params.OnStream(choice.Delta)
 					}
 
 					if choice.Index > len(completion.Choices)-1 {
-						role := stella.ASSISTANT
+						role := "assistant"
 
 						if choice.Delta.Role != "" {
 							role = choice.Delta.Role
@@ -165,7 +182,32 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 		return Message{}, errors.New("[openai.chat] => no message returned")
 	}
 
-	return completion.Choices[0].Message, nil
+	message := completion.Choices[0].Message
+
+	if message.ToolCalls != nil {
+		params.Messages = append(params.Messages, message)
+
+		for _, call := range message.ToolCalls {
+			args, err := call.Function.GetArguments()
+
+			if err != nil {
+				return message, err
+			}
+
+			res := params.Functions[call.Function.Name].Handler(args)
+			data, _ := json.Marshal(res)
+
+			params.Messages = append(params.Messages, Message{
+				Role:       "tool",
+				Content:    string(data),
+				ToolCallID: call.ID,
+			})
+
+			return self.CreateChatCompletion(params)
+		}
+	}
+
+	return message, nil
 }
 
 func containsDoubleNewline(data []byte) (int, int) {

@@ -19,3 +19,8 @@ func (self Function) String() string {
 		self.Name, self.Description,
 	)
 }
+
+type FunctionCall interface {
+	GetName() string
+	GetArguments() (any, error)
+}

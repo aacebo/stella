@@ -7,19 +7,15 @@ import (
 	"strings"
 
 	stella "github.com/aacebo/stella/core"
-	"github.com/aacebo/stella/google"
+	"github.com/aacebo/stella/openai"
 )
 
-var STREAM = true
+var STREAM = false
 
 func main() {
-	// client := openai.NewChatClient(
-	// 	os.Getenv("OPENAI_API_KEY"),
-	// 	"gpt-4-turbo",
-	// ).WithTemperature(0).WithStream(true)
-	client := google.NewChatClient(
-		os.Getenv("GEMINI_API_KEY"),
-		"gemini-1.5-flash-latest",
+	client := openai.NewChatClient(
+		os.Getenv("OPENAI_API_KEY"),
+		"gpt-4-turbo",
 	).WithTemperature(0).WithStream(STREAM)
 
 	app := stella.New().

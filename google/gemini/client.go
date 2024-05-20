@@ -36,3 +36,7 @@ func (self Client) WithHttpClient(client http.Client) Client {
 	self.http = client
 	return self
 }
+
+func (self Client) SupportsNativeFunctions() bool {
+	return true
+}

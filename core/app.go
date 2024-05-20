@@ -162,21 +162,25 @@ func (self *App) Say(name string, input string, stream func(string)) (string, er
 
 	text := ""
 	self.messages = append(self.messages, UserChatMessage(input))
-	res, err := self.chat.ChatCompletion(self.messages, func(message Message) {
-		text += message.GetContent()
-		content := text
-		prompt, err := NewPrompt("default", content, state)
+	res, err := self.chat.CreateChatCompletion(CreateChatCompletionParams{
+		Messages:  self.messages,
+		Functions: self.functions,
+		OnStream: func(message Message) {
+			text += message.GetContent()
+			content := text
+			prompt, err := NewPrompt("default", content, state)
 
-		if err != nil {
-			return
-		}
+			if err != nil {
+				return
+			}
 
-		text = ""
-		content, _ = prompt.Render(state)
+			text = ""
+			content, _ = prompt.Render(state)
 
-		if stream != nil {
-			stream(content)
-		}
+			if stream != nil {
+				stream(content)
+			}
+		},
 	})
 
 	if err != nil {

@@ -25,12 +25,12 @@ type CompletionCandidate struct {
 	Content      Content `json:"content"`
 }
 
-func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.Message)) (stella.Message, error) {
+func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams) (stella.Message, error) {
 	b, err := json.Marshal(map[string]any{
-		"contents": utils.SliceMap(messages, func(message stella.Message) Content {
+		"contents": utils.SliceMap(params.Messages, func(message stella.Message) Content {
 			role := "user"
 
-			if message.GetRole() != stella.USER && message.GetRole() != stella.SYSTEM {
+			if message.GetRole() != "user" && message.GetRole() != "system" {
 				role = "model"
 			}
 
@@ -128,12 +128,12 @@ func (self Client) ChatCompletion(messages []stella.Message, stream func(stella.
 				}
 
 				for _, candidate := range chunk.Candidates {
-					if stream != nil {
-						stream(candidate.Content)
+					if params.OnStream != nil {
+						params.OnStream(candidate.Content)
 					}
 
 					if candidate.Index > len(completion.Candidates)-1 {
-						role := string(stella.ASSISTANT)
+						role := "assistant"
 
 						if candidate.Content.Role != "" {
 							role = candidate.Content.Role
