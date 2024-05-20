@@ -16,12 +16,16 @@ func main() {
 		var res string
 
 		if turn%2 == 0 {
+			fmt.Print("[Gemini]: ")
+
 			res, _ = google.Say("default", text, func(res string) {
-				fmt.Printf("[Gemini]: %s", res)
+				fmt.Print(res)
 			})
 		} else {
+			fmt.Print("[ChatGPT]: ")
+
 			res, _ = openai.Say("default", text, func(res string) {
-				fmt.Printf("[ChatGPT]: %s", res)
+				fmt.Print(res)
 			})
 		}
 

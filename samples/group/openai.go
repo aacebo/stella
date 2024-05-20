@@ -11,7 +11,7 @@ func OpenAI() *stella.App {
 	client := openai.NewChatClient(
 		os.Getenv("OPENAI_API_KEY"),
 		"gpt-4-turbo",
-	).WithTemperature(0).WithStream(true)
+	).WithTemperature(0).WithStream(STREAM)
 
 	app := stella.New().WithChat(client)
 	app.Prompt("default", "you are a chatty robot")

@@ -55,8 +55,11 @@ func (self Client) CreateChatCompletion(params stella.CreateChatCompletionParams
 		}
 	}
 
+	if len(tools) == 0 {
+		tools = nil
+	}
+
 	b, err := json.Marshal(map[string]any{
-		"tool_choice": "auto",
 		"model":       self.model,
 		"temperature": self.temperature,
 		"stream":      self.stream,
